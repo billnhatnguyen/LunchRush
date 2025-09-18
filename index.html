@@ -1,10 +1,98 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Lunch Rush</title>
+        <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     </head>
 
+    <style>
+        /* Simple just housekeeping work */ 
+        body{
+            margin:0;
+            display: flex; 
+            justify-content: center;
+            align-items: center; 
+            height: 100vh; 
+            background-color: #f0f0f0;
+            font-family:'Press Start 2P', cursive;
+            overflow: hidden;
+        }
+        /* This will be where we'll "draw" our game*/
+        canvas {
+            border:4px solid#333;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+            background-color: #6a6a6a;
+        }
+
+        /* This will be our overall container */
+        #gameContainer { 
+            position: relative; 
+            }.game-ui {
+                position: absolute;
+                color: #fff;
+                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+                font-size: 18px;
+                z-index: 10;
+            }
+            /* Our game numbers*/
+            #pointsScore {
+                top: 20px; 
+                left: 20px;
+            }
+
+            #healthMeter{
+                top:60px; 
+                left: 20px;
+                color: lightgreen; 
+            }
+
+            #streak{
+                top:100px; 
+                left: 200px;
+                color: lightyellow;
+            }
+
+            #pause{
+                top:140px;
+                left:20px;
+            }
+
+            #gameOver{
+                font-size: 50px;
+                color: darkred;
+                display: none; 
+                top: 50%; 
+                left: 50%;
+                transform: translate(-50%, -50%);
+            }
+        
+
+    </style>
+
     <body>
+        <!-- This will make our scores variables for later-->
+        <div id="gameContainer">
+            <div id="pointsScore" class="game-ui">Score = 0 </div>
+            <div id="healthMeter" class="game-ui">Health:100 </div>
+            <div id="streak" class="game-ui">Streak = 0 (1x)</div>
+            <div id="gameOver" class="game-ui">Game Over!<br></div>
             
+        </div>
+        
+        <!-- This will be our block for our game-->
+        <script>
+            function setup(){
+                let canvas = createCanvas(400,600);
+                canvas.parent('gameContainer');
+                pixelDensity(1);
+                textAlign(CENTER);
+                textSize(16);
+            }
+
+            function draw(){
+                background(150);
+            }
+        </script>
     </body>
 </html>
