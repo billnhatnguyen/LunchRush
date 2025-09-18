@@ -127,6 +127,33 @@
                 }
                 beltOffset = (beltOffset + beltSpeed) % 20; 
 
+                //Item maker timed
+                frames++; 
+                if(frames >= spawnTime){
+                    spawnItems();
+                    frames = 0;
+                }
+
+                //Move and draw our items
+                for(let i =items.length -1; i>=0; i--){
+                    items[i].y += itemSpeed; 
+
+                    //Placeholder for our items
+                    fill(items[i].color);
+                    ellipse(items[i].x, items[i].y, 30, 30);
+                    
+                    //Tacks off HP for when items fall off our belt
+                    if(items[i].y > height){
+                        items.splice(i,1);
+                        health -= 10; 
+                        streak = 0 ; 
+                        if(health <= 0){
+                            gameOver = true; 
+                            document.getElementById('gameOver').style.display = "block";
+                        }
+                    }
+                }
+
             }
 
                 //Items
