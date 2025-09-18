@@ -129,6 +129,20 @@
 
             }
 
+                //Items
+                function spawnItems(){
+                    let randomFood = random(itemType);
+                    items.push({
+                        x: width/2,
+                        y: -25,
+                        ...randomFood, 
+                        swipe: null,
+                        swipeSpeed: 0,
+                        swipeProgress: 0, 
+                        swipeDistance: 200
+                    });
+                }
+
         </script>
     </body>
 </html>
