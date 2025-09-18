@@ -4,6 +4,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Lunch Rush</title>
         <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.min.js"></script>
     </head>
 
     <style>
@@ -49,7 +50,7 @@
 
             #streak{
                 top:100px; 
-                left: 200px;
+                left: 20px;
                 color: lightyellow;
             }
 
@@ -80,7 +81,7 @@
             
         </div>
         
-        <!-- This will be our block for our game-->
+        <!-- This will be our block for our game our JS :) -->
         <script>
             function setup(){
                 let canvas = createCanvas(400,600);
@@ -88,11 +89,46 @@
                 pixelDensity(1);
                 textAlign(CENTER);
                 textSize(16);
-            }
+                noStroke();
+
+                document.addEventListener('touchmove', function(event) {
+                    if (!gameOver) event.preventDefault();
+                }, { passive: false });
+                }
+
+            //Our JS global variables used in our game
+            let frames = 0; 
+            let spawnTime = 60; 
+            let itemSpeed = 2; 
+            let beltOffset = 0; 
+            let beltSpeed = 2; 
+            let score = 0; 
+            let health = 100; 
+            let streak = 0; 
+            let multiScore = 1; 
+            let gameOver = false;
+            let items = []; 
+            
+            const itemType = [
+                {name: "Salad", class: "Healthy", points: 10, color: "green", img: null},
+                {name: "Burger", class: "Unhealthy", points: 5, color: "brown", img: null},
+            ];
 
             function draw(){
+                //If its game over well return
+                if (gameOver) return; 
+
+                //This is our convayor belt
                 background(150);
+                stroke(100);
+                strokeWeight(2);
+                for(let y = beltOffset; y<height; y+=25){
+                    line(0, y, width, y);
+                }
+                beltOffset = (beltOffset + beltSpeed) % 20; 
+
             }
+
         </script>
     </body>
 </html>
