@@ -54,11 +54,6 @@
                 color: lightyellow;
             }
 
-            #pause{
-                top:140px;
-                left:20px;
-            }
-
             #gameOver{
                 font-size: 50px;
                 color: darkred;
@@ -67,9 +62,17 @@
                 left: 50%;
                 transform: translate(-50%, -50%);
             }
-            
-        
-
+            #gameOver button {
+                background-color: #4CAF50;
+                border: none;
+                color: white;
+                padding: 15px 32px;
+                font-size: 16px;
+                margin-top: 20px;
+                cursor: pointer;
+                border-radius: 8px;
+                font-family: 'Press Start 2P', cursive;
+                }
     </style>
 
     <body>
@@ -78,11 +81,11 @@
             <div id="pointsScore" class="game-ui">Score = 0 </div>
             <div id="healthMeter" class="game-ui">Health:100 </div>
             <div id="streak" class="game-ui">Streak = 0 (1x)</div>
-            <div id="gameOver" class="game-ui">
-                    Game Over! <br>
-                    <button onclick="resetGame()">Play Again</button>
-            </div>
-        
+            <div id="gameOver" class="game-ui"> 
+                Game Over! <br> 
+                <button onclick="resetGame()">Play Again</button>
+            </div>     
+
         <!-- This will be our block for our game our JS :) -->
         <script>
             function setup(){
@@ -94,8 +97,13 @@
                 noStroke();
 
                 document.addEventListener('touchmove', function(event) {
-                    if (!gameOver) event.preventDefault();
+                    if (!gameOver && !paused) event.preventDefault();
                 }, { passive: false });
+
+                document.getElementById('pause').addEventListener('click', () => {
+                    paused = !paused;
+                document.getElementById('pause').innerText = paused ? 'Resume' : 'Pause';
+                });
             }
 
             //Our JS global variables used in our game
@@ -110,6 +118,7 @@
             let multi = 1; 
             let gameOver = false;
             let items = []; 
+            let paused = false; 
             
             const itemType = [
                 {name: "Salad", class: "Healthy", points: 10, color: "green", img: null, radius: 30},
@@ -190,6 +199,8 @@
                         isGameOver();
                     }
 
+                    updateUI();
+
                     if (frameCount %120 == 0){
                         itemSpeed = Math.min(itemSpeed + 0.2, 10);
                         beltSpeed = Math.min(beltSpeed + 0.1, 6);
@@ -203,12 +214,23 @@
             
             //Items
             function spawnItems(){
-                    let randomFood = random(itemType);
-                    items.push(new Item(randomFood));
+                let randomFood = random(itemType);
+                items.push(new Item(randomFood));
             }
 
             //Our swiping mechanism
             function swiper(){
+                if(paused){
+                    background(150);
+                    stroke(100);
+                    strokeWeight(2);
+                    fill(0,0,0,120);
+                    rect(0,0,width,height);
+                    fill(255);
+                    text(36);
+                    text("PAUSED", width/2, height/2);
+                    return false;
+                }
                 if (gameOver){
                     return false; 
                 }
@@ -249,6 +271,7 @@
                 return swiper();
             }
 
+
             function getMulti(){
                 if(streak >= 10 ){
                     return 2; 
@@ -262,7 +285,7 @@
             }
 
             //Our game's logic
-            function processItem(item, direction){
+            function processItem(item, direction, index){
                 item.swipe = direction; 
                 const correctSwipe = (direction == "left" && item.kind == "Healthy") || (direction == "right" && item.kind == "Unhealthy"); 
                 
@@ -283,6 +306,37 @@
                     isGameOver();
             }
             
+            //Arrow Control
+            function keyPressed(){
+                if (keyCode == 32){
+                    paused = !paused;
+                    document.getElementById('pause').innerText = paused ? 'Resume' : 'Pause';
+                }
+                if (gameOver){
+                    return;
+                }
+                if (keyCode == LEFT_ARROW || key == 'a' || key == 'A') arrowSwipe("left");
+                if (keyCode == RIGHT_ARROW || key == 'd' || key == 'D') arrowSwipe("right");       
+            }
+
+        function arrowSwipe(direction) {
+            if (items.length === 0) return;
+            let bot = null;
+            let maxY = -Infinity;
+            let botIndex = -1;
+            for (let i = 0; i < items.length; i++) {
+                if (items[i].swipe) continue;
+                if (items[i].y < -items[i].radius || items[i].y > height + items[i].radius) continue;
+                if (items[i].y > maxY) {
+                    maxY = items[i].y;
+                    bot = items[i];
+                    botIndex = i;
+                }
+            }
+            if (bot) {
+                processItem(bot, direction);
+            }
+        }
 
             //UI changes based on gameplay
             function updateUI(){
@@ -296,7 +350,6 @@
                 if(health <= 0){
                     gameOver = true; 
                     document.getElementById('gameOver').style.display = 'block';
-                    document.getElementById('restartButton').style.display = 'block';
                     noLoop();
                 }
             }
