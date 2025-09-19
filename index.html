@@ -95,7 +95,7 @@
                     if (!gameOver) event.preventDefault();
                 }, { passive: false });
                 }
-
+                
             //Our JS global variables used in our game
             let frames = 0; 
             let spawnTime = 60; 
@@ -113,6 +113,23 @@
                 {name: "Salad", class: "Healthy", points: 10, color: "green", img: null},
                 {name: "Burger", class: "Unhealthy", points: 5, color: "brown", img: null},
             ];
+
+            //Will be our item class for the individual items
+            class Item { 
+                constructor(type){
+                    this.x = width /2; 
+                    this.y = -30; 
+                    this.name = type.kind; 
+                    this.kind = type.kind; 
+                    this.color = type.color; 
+                    this.swipe = null;
+                    this.swipeSpeed = 15;
+                    this.swipeProgress = 0;
+                    this.swipeDistance = 220;
+                    this.radius = 30;
+                }
+            }
+
 
             function draw(){
                 //If its game over well return
@@ -138,9 +155,11 @@
                 for(let i =items.length -1; i>=0; i--){
                     items[i].y += itemSpeed; 
 
+
                     //Placeholder for our items
                     fill(items[i].color);
                     ellipse(items[i].x, items[i].y, 30, 30);
+                    
                     
                     //Tacks off HP for when items fall off our belt
                     if(items[i].y > height){
@@ -152,12 +171,13 @@
                             document.getElementById('gameOver').style.display = "block";
                         }
                     }
+
                 }
 
             }
 
-                //Items
-                function spawnItems(){
+            //Items
+            function spawnItems(){
                     let randomFood = random(itemType);
                     items.push({
                         x: width/2,
@@ -168,7 +188,22 @@
                         swipeProgress: 0, 
                         swipeDistance: 200
                     });
-                }
+            }
+
+            function processItems(item, direction){
+                item.swipe = direction; 
+                item.swipeAmount = 0; 
+
+                const rightLeft = direction == "left" && item.kind == "Healthy"; 
+                const rightRight = direction == "right" && item.kind == "Unhealthy"; 
+
+            }
+
+
+
+            
+
+                
 
         </script>
     </body>
