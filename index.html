@@ -67,6 +67,7 @@
                 left: 50%;
                 transform: translate(-50%, -50%);
             }
+            
         
 
     </style>
@@ -77,9 +78,10 @@
             <div id="pointsScore" class="game-ui">Score = 0 </div>
             <div id="healthMeter" class="game-ui">Health:100 </div>
             <div id="streak" class="game-ui">Streak = 0 (1x)</div>
-            <div id="gameOver" class="game-ui">Game Over!<br></div>
-            
-        </div>
+            <div id="gameOver" class="game-ui">
+                    Game Over! <br>
+                    <button onclick="resetGame()">Play Again</button>
+            </div>
         
         <!-- This will be our block for our game our JS :) -->
         <script>
@@ -94,8 +96,8 @@
                 document.addEventListener('touchmove', function(event) {
                     if (!gameOver) event.preventDefault();
                 }, { passive: false });
-                }
-                
+            }
+
             //Our JS global variables used in our game
             let frames = 0; 
             let spawnTime = 60; 
@@ -105,28 +107,29 @@
             let score = 0; 
             let health = 100; 
             let streak = 0; 
-            let multiScore = 1; 
+            let multi = 1; 
             let gameOver = false;
             let items = []; 
             
             const itemType = [
-                {name: "Salad", class: "Healthy", points: 10, color: "green", img: null},
-                {name: "Burger", class: "Unhealthy", points: 5, color: "brown", img: null},
+                {name: "Salad", class: "Healthy", points: 10, color: "green", img: null, radius: 30},
+                {name: "Burger", class: "Unhealthy", points: 5, color: "brown", img: null, radius: 30},
             ];
 
             //Will be our item class for the individual items
             class Item { 
                 constructor(type){
                     this.x = width /2; 
-                    this.y = -30; 
-                    this.name = type.kind; 
-                    this.kind = type.kind; 
+                    this.y = -type.radius; 
+                    this.name = type.name; 
+                    this.kind = type.class; 
                     this.color = type.color; 
+                    this.points = type.points
+                    this.radius = type.radius;
                     this.swipe = null;
                     this.swipeSpeed = 15;
                     this.swipeProgress = 0;
-                    this.swipeDistance = 220;
-                    this.radius = 30;
+                    this.swipeDistance = 200;
                 }
             }
 
@@ -153,12 +156,29 @@
 
                 //Move and draw our items
                 for(let i =items.length -1; i>=0; i--){
-                    items[i].y += itemSpeed; 
+                    let item = items[i];
+                    
+                    if(!item.swipe){
+                        item.y += itemSpeed;
+                    } else {
+                        if (item.swipe == "left"){
+                            item.x -= item.swipeSpeed;
+                        }
+                        if (item.swipe == "right"){
+                            item.x += item.swipeSpeed;
+                        }
+                        item.swipeProgress += item.swipeSpeed;
+
+                        if(item.swipeProgress > item.swipeDistance){
+                            items.splice(i,1);
+                            continue;
+                        }
+                    }
 
 
                     //Placeholder for our items
                     fill(items[i].color);
-                    ellipse(items[i].x, items[i].y, 30, 30);
+                    ellipse(items[i].x, items[i].y, item.radius, item.radius);
                     
                     
                     //Tacks off HP for when items fall off our belt
@@ -166,44 +186,138 @@
                         items.splice(i,1);
                         health -= 10; 
                         streak = 0 ; 
-                        if(health <= 0){
-                            gameOver = true; 
-                            document.getElementById('gameOver').style.display = "block";
-                        }
+                        updateUI();
+                        isGameOver();
+                    }
+
+                    if (frameCount %120 == 0){
+                        itemSpeed = Math.min(itemSpeed + 0.2, 10);
+                        beltSpeed = Math.min(beltSpeed + 0.1, 6);
+                        spawnTime = Math.max(20, spawnTime -2);
                     }
 
                 }
 
             }
 
+            
             //Items
             function spawnItems(){
                     let randomFood = random(itemType);
-                    items.push({
-                        x: width/2,
-                        y: -25,
-                        ...randomFood, 
-                        swipe: null,
-                        swipeSpeed: 0,
-                        swipeProgress: 0, 
-                        swipeDistance: 200
-                    });
+                    items.push(new Item(randomFood));
             }
 
-            function processItems(item, direction){
+            //Our swiping mechanism
+            function swiper(){
+                if (gameOver){
+                    return false; 
+                }
+
+                for (let i = items.length -1; i>= 0; i--){
+                    const item = items[i];
+                    if (item.swipe){
+                        continue;
+                    }
+                    if(item.y < -50 || item.y > height + 50){
+                        continue; 
+                    }
+                    
+                    const distanceX = mouseX - item.x; 
+                    const distanceY = mouseY - item.y; 
+                    const distance = Math.sqrt (pow(distanceX, 2) + pow(distanceY, 2))
+                    
+                    if(distance <= item.radius + 10){
+                            const changeX = mouseX - pmouseX;
+                            
+                            if (changeX < -5){
+                                processItem(item, "left");
+                                break;
+                            }
+                            if (changeX > 5){
+                                processItem(item, "right");
+                                break;
+                            }
+                    }
+                }
+            }
+
+            //Simple if we swip call our swiper
+            function mouseDragged() {
+                return swiper();
+            }
+            function touchMoved(){
+                return swiper();
+            }
+
+            function getMulti(){
+                if(streak >= 10 ){
+                    return 2; 
+                }
+                if(streak > 5) {
+                    return 1.5;
+                }
+                else{
+                return 1;
+                }
+            }
+
+            //Our game's logic
+            function processItem(item, direction){
                 item.swipe = direction; 
-                item.swipeAmount = 0; 
+                const correctSwipe = (direction == "left" && item.kind == "Healthy") || (direction == "right" && item.kind == "Unhealthy"); 
+                
+                if (correctSwipe){
+                    streak++; 
+                    const points = Math.round(item.points *getMulti());
+                    score += points; 
 
-                const rightLeft = direction == "left" && item.kind == "Healthy"; 
-                const rightRight = direction == "right" && item.kind == "Unhealthy"; 
-
+                    if (item.kind == "Healthy"){
+                        health = Math.min(100, health + 5);
+                    }
+                }else{
+                    streak = 0;
+                    health -= 10;
+                    score = Math.max(0, score - 5);
+                }
+                    updateUI();
+                    isGameOver();
             }
-
-
-
             
 
-                
+            //UI changes based on gameplay
+            function updateUI(){
+                document.getElementById("pointsScore").innerText = `Score = ${score}`;
+                document.getElementById("healthMeter").innerText = `Health = ${health}`;
+                document.getElementById("streak").innerText = `Streak = ${streak} (${getMulti()}x)`;
+            }
+
+            //GameState
+            function isGameOver(){
+                if(health <= 0){
+                    gameOver = true; 
+                    document.getElementById('gameOver').style.display = 'block';
+                    document.getElementById('restartButton').style.display = 'block';
+                    noLoop();
+                }
+            }
+
+            //Reset Game
+            function resetGame(){
+                frames = 0; 
+                 spawnTime = 60; 
+                 itemSpeed = 2; 
+                 beltOffset = 0; 
+                 beltSpeed = 2; 
+                 score = 0; 
+                 health = 100; 
+                 streak = 0; 
+                 multi = 1; 
+                 gameOver = false;
+                 items = []; 
+                document.getElementById('gameOver').style.display = 'none';
+                updateUI();
+                loop();
+            }
 
         </script>
     </body>
