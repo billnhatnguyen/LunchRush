@@ -5,6 +5,7 @@
         <title>Lunch Rush</title>
         <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
         <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.min.js"></script>
+
     </head>
 
     <style>
@@ -38,20 +39,24 @@
             }
             /* Our game numbers*/
             #pointsScore {
-                top: 20px; 
+                top: 25px; 
                 left: 20px;
+                font-size: 12px
+
             }
 
             #healthMeter{
-                top:60px; 
-                left: 20px;
+                top:30px; 
+                left: 150px;
                 color: lightgreen; 
+                font-size: 10px
             }
 
             #streak{
-                top:100px; 
-                left: 20px;
+                top:25px; 
+                left: 300px;
                 color: lightyellow;
+                font-size: 12px
             }
 
             #gameOver{
@@ -78,9 +83,9 @@
     <body>
         <!-- This will make our scores variables for later-->
         <div id="gameContainer">
-            <div id="pointsScore" class="game-ui">Score = 0 </div>
+            <div id="pointsScore" class="game-ui">Score:0 </div>
             <div id="healthMeter" class="game-ui">Health:100 </div>
-            <div id="streak" class="game-ui">Streak = 0 (1x)</div>
+            <div id="streak" class="game-ui">Streak:0</div>
             <div id="gameOver" class="game-ui"> 
                 Game Over! <br> 
                 <button onclick="resetGame()">Play Again</button>
@@ -99,11 +104,7 @@
                 document.addEventListener('touchmove', function(event) {
                     if (!gameOver && !paused) event.preventDefault();
                 }, { passive: false });
-
-                document.getElementById('pause').addEventListener('click', () => {
-                    paused = !paused;
-                document.getElementById('pause').innerText = paused ? 'Resume' : 'Pause';
-                });
+                
             }
 
             //Our JS global variables used in our game
@@ -119,11 +120,26 @@
             let gameOver = false;
             let items = []; 
             let paused = false; 
+            let convayorBelt;
+            let convayorBeltHeight = 35;
+            let convayorBeltWidth = 100; 
+            let backgroundImg;
             
             const itemType = [
                 {name: "Salad", class: "Healthy", points: 10, color: "green", img: null, radius: 30},
                 {name: "Burger", class: "Unhealthy", points: 5, color: "brown", img: null, radius: 30},
             ];
+
+            function preload() {
+                backgroundImg = loadImage('assets/toronto.png');
+                const burgerImage = loadImage('assets/burger.webp');
+                const burger = itemType.find(item => item.name === "Burger");
+                convayorBelt = loadImage('assets/gray.png')
+
+                if (burger) {
+                    burger.img = burgerImage;
+                }
+            }
 
             //Will be our item class for the individual items
             class Item { 
@@ -135,6 +151,7 @@
                     this.color = type.color; 
                     this.points = type.points
                     this.radius = type.radius;
+                    this.img = type.img;
                     this.swipe = null;
                     this.swipeSpeed = 15;
                     this.swipeProgress = 0;
@@ -147,16 +164,38 @@
                 //If its game over well return
                 if (gameOver) return; 
 
-                //This is our convayor belt
-                background(150);
-                stroke(100);
-                strokeWeight(2);
-                for(let y = beltOffset; y<height; y+=25){
-                    line(0, y, width, y);
+                if (paused) {
+                    background(150);
+                    stroke(100);
+                    strokeWeight(2);
+                    for (let y = beltOffset; y <= height + 25; y += 25) {
+                        line(0, y, width, y);
+                    }
+                    fill(0, 0, 0, 120);
+                    rect(0, 0, width, height);
+                    fill(255);
+                    textSize(16);
+                    text('PAUSED', width / 2, height / 2);
+                    textSize(16);
+                    return;
                 }
-                beltOffset = (beltOffset + beltSpeed) % 20; 
 
-                //Item maker timed
+                //This is our convayor belt
+                image(backgroundImg, 0, 0, width, height);
+                // stroke(100);
+                // strokeWeight(2);
+                // for(let y = beltOffset; y<height; y+=25){s
+                //     line(0, y, width, y);
+                // }
+                // beltOffset = (beltOffset + beltSpeed) % 20; 
+                for(let y = beltOffset - convayorBeltHeight; y < height + convayorBeltHeight; y += convayorBeltHeight){
+                    image(convayorBelt, width/2 - convayorBeltWidth/2, y, convayorBeltWidth, convayorBeltHeight);
+                }
+                
+                // Update belt offset for continuous scrolling
+                beltOffset = (beltOffset + itemSpeed) % convayorBeltHeight;
+
+                //Item maker timed.
                 frames++; 
                 if(frames >= spawnTime){
                     spawnItems();
@@ -186,9 +225,14 @@
 
 
                     //Placeholder for our items
-                    fill(items[i].color);
-                    ellipse(items[i].x, items[i].y, item.radius, item.radius);
-                    
+                    if(item.img){
+                        image(item.img, item.x - item.radius, item.y - item.radius, item.radius * 2, item.radius * 2);  
+                    }else{
+                        fill(items[i].color);
+                        ellipse(items[i].x, items[i].y, item.radius, item.radius);
+                    }
+                    fill(0);
+                    text(item.name, item.x, item.y + 5);
                     
                     //Tacks off HP for when items fall off our belt
                     if(items[i].y > height){
@@ -202,7 +246,7 @@
                     updateUI();
 
                     if (frameCount %120 == 0){
-                        itemSpeed = Math.min(itemSpeed + 0.2, 10);
+                        itemSpeed = Math.min(itemSpeed + 0.2, 100000);
                         beltSpeed = Math.min(beltSpeed + 0.1, 6);
                         spawnTime = Math.max(20, spawnTime -2);
                     }
@@ -227,7 +271,7 @@
                     fill(0,0,0,120);
                     rect(0,0,width,height);
                     fill(255);
-                    text(36);
+                    textSize(16);
                     text("PAUSED", width/2, height/2);
                     return false;
                 }
@@ -340,9 +384,9 @@
 
             //UI changes based on gameplay
             function updateUI(){
-                document.getElementById("pointsScore").innerText = `Score = ${score}`;
-                document.getElementById("healthMeter").innerText = `Health = ${health}`;
-                document.getElementById("streak").innerText = `Streak = ${streak} (${getMulti()}x)`;
+                document.getElementById("pointsScore").innerText = `Score:${score}`;
+                document.getElementById("healthMeter").innerText = `Health:${health}`;
+                document.getElementById("streak").innerText = `Streak:${streak}`;
             }
 
             //GameState
