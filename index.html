@@ -109,7 +109,7 @@
             //Our JS global variables used in our game
             let frames = 0; 
             let spawnTime = 60; 
-            let itemSpeed = 2; 
+            let itemSpeed = 5; 
             let beltOffset = 0; 
             let beltSpeed = 2; 
             let score = 0; 
@@ -201,7 +201,7 @@
                 beltOffset = (beltOffset + itemSpeed) % convayorBeltHeight;
 
                 //Item maker timed.
-                frames++; 
+                frames += itemSpeed / 5; 
                 if(frames >= spawnTime){
                     spawnItems();
                     frames = 0;
@@ -407,7 +407,6 @@
                     }else{
                         arrowDirection = null;
                     }
-                    pop();
                 }
             }
 
@@ -431,7 +430,7 @@
             function resetGame(){
                 frames = 0; 
                  spawnTime = 60; 
-                 itemSpeed = 2; 
+                 itemSpeed = 5; 
                  beltOffset = 0; 
                  beltSpeed = 2; 
                  score = 0; 
