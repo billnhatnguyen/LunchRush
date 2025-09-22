@@ -121,7 +121,7 @@
             let items = []; 
             let paused = false; 
             let convayorBelt;
-            let convayorBeltHeight = 35;
+            let convayorBeltHeight = 33;
             let convayorBeltWidth = 100; 
             let backgroundImg;
             
@@ -131,10 +131,10 @@
             ];
 
             function preload() {
-                backgroundImg = loadImage('assets/toronto.png');
+                backgroundImg = loadImage('assets/background.png');
                 const burgerImage = loadImage('assets/burger.webp');
                 const burger = itemType.find(item => item.name === "Burger");
-                convayorBelt = loadImage('assets/gray.png')
+                convayorBelt = loadImage('assets/rail.png')
 
                 if (burger) {
                     burger.img = burgerImage;
@@ -189,7 +189,7 @@
                 // }
                 // beltOffset = (beltOffset + beltSpeed) % 20; 
                 for(let y = beltOffset - convayorBeltHeight; y < height + convayorBeltHeight; y += convayorBeltHeight){
-                    image(convayorBelt, width/2 - convayorBeltWidth/2, y, convayorBeltWidth, convayorBeltHeight);
+                    image(convayorBelt, width/2 - convayorBeltWidth/2 + 2, y, convayorBeltWidth, convayorBeltHeight);
                 }
                 
                 // Update belt offset for continuous scrolling
