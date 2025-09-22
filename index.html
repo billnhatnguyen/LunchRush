@@ -38,25 +38,24 @@
                 z-index: 10;
             }
             /* Our game numbers*/
-            #pointsScore {
-                top: 25px; 
-                left: 20px;
-                font-size: 12px
-
-            }
-
             #healthMeter{
-                top:30px; 
-                left: 150px;
-                color: lightgreen; 
-                font-size: 10px
+                top: 22px; 
+                left: 29px;
+                font-size: 9px
+
             }
 
             #streak{
-                top:25px; 
-                left: 300px;
-                color: lightyellow;
-                font-size: 12px
+                top:30px; 
+                left: 176px;
+                color: white ; 
+                font-size: 8px
+            }
+
+            #pointsScore{
+                top:22px; 
+                left: 309px;
+                font-size: 9px
             }
 
             #gameOver{
@@ -124,6 +123,10 @@
             let convayorBeltHeight = 33;
             let convayorBeltWidth = 100; 
             let backgroundImg;
+            let arrowDirection = null;
+            let leftPressed;
+            let rightPressed;
+            let appearTime = 0;
             
             const itemType = [
                 {name: "Salad", class: "Healthy", points: 10, color: "green", img: null, radius: 30},
@@ -135,7 +138,8 @@
                 const burgerImage = loadImage('assets/burger.webp');
                 const burger = itemType.find(item => item.name === "Burger");
                 convayorBelt = loadImage('assets/rail.png')
-
+                leftPressed = loadImage('assets/PressedGreen.png');
+                rightPressed = loadImage('assets/PressedRed.png');
                 if (burger) {
                     burger.img = burgerImage;
                 }
@@ -144,7 +148,7 @@
             //Will be our item class for the individual items
             class Item { 
                 constructor(type){
-                    this.x = width /2; 
+                    this.x = width /2 + 2; 
                     this.y = -type.radius; 
                     this.name = type.name; 
                     this.kind = type.class; 
@@ -179,6 +183,7 @@
                     textSize(16);
                     return;
                 }
+
 
                 //This is our convayor belt
                 image(backgroundImg, 0, 0, width, height);
@@ -242,6 +247,9 @@
                         updateUI();
                         isGameOver();
                     }
+
+                    arrowAnimation();
+
 
                     updateUI();
 
@@ -359,28 +367,49 @@
                 if (gameOver){
                     return;
                 }
-                if (keyCode == LEFT_ARROW || key == 'a' || key == 'A') arrowSwipe("left");
-                if (keyCode == RIGHT_ARROW || key == 'd' || key == 'D') arrowSwipe("right");       
-            }
-
-        function arrowSwipe(direction) {
-            if (items.length === 0) return;
-            let bot = null;
-            let maxY = -Infinity;
-            let botIndex = -1;
-            for (let i = 0; i < items.length; i++) {
-                if (items[i].swipe) continue;
-                if (items[i].y < -items[i].radius || items[i].y > height + items[i].radius) continue;
-                if (items[i].y > maxY) {
-                    maxY = items[i].y;
-                    bot = items[i];
-                    botIndex = i;
+                if (keyCode == LEFT_ARROW || key == 'a' || key == 'A'){
+                    arrowSwipe("left");
+                    arrowDirection = "left";
+                    appearTime = millis();
+                }
+                if (keyCode == RIGHT_ARROW || key == 'd' || key == 'D'){ 
+                    arrowSwipe("right");
+                    arrowDirection = "right";
+                    appearTime = millis();
                 }
             }
-            if (bot) {
-                processItem(bot, direction);
+
+            function arrowSwipe(direction) {
+                if (items.length === 0) return;
+                let bot = null;
+                let maxY = -Infinity;
+                let botIndex = -1;
+                for (let i = 0; i < items.length; i++) {
+                    if (items[i].swipe) continue;
+                    if (items[i].y < -items[i].radius || items[i].y > height + items[i].radius) continue;
+                    if (items[i].y > maxY) {
+                        maxY = items[i].y;
+                        bot = items[i];
+                        botIndex = i;
+                    }
+                }
+                if (bot) {
+                    processItem(bot, direction);
+                }
             }
-        }
+
+            function arrowAnimation(){ 
+                if(arrowDirection && millis() - appearTime < 500){
+                    if (arrowDirection == "right"){
+                        image(rightPressed, 291, 481, 89, 86);
+                    }else if (arrowDirection == "left"){
+                        image(leftPressed, 18, 481, 89, 86);
+                    }else{
+                        arrowDirection = null;
+                    }
+                    pop();
+                }
+            }
 
             //UI changes based on gameplay
             function updateUI(){
