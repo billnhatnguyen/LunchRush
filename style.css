@@ -1,0 +1,121 @@
+
+/* Simple just housekeeping work */
+    body {
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #f0f0f0;
+      font-family: "Press Start 2P", cursive;
+      overflow: hidden;
+    }
+    /* This will be where we'll "draw" our game*/
+    canvas {
+      border: 4px solid#333;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+      background-color: #6a6a6a;
+    }
+
+    /* This will be our overall container */
+    #gameContainer {
+      position: relative;
+    }
+    .game-ui {
+      position: absolute;
+      color: #fff;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+      font-size: 18px;
+      z-index: 10;
+    }
+    /* Our game numbers*/
+    #healthMeter {
+      top: 22px;
+      left: 29px;
+      font-size: 9px;
+    }
+
+    #streak {
+      top: 30px;
+      left: 176px;
+      color: white;
+      font-size: 8px;
+    }
+
+    #pointsScore {
+      top: 22px;
+      left: 304px;
+      font-size: 9px;
+    }
+
+    #gameOver {
+    position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: none;
+      background: rgba(0, 0, 0, 0);
+      display: none;
+      z-index: 100;
+      color: #fff;
+      text-align: center;
+      padding-top: 210px;
+      box-sizing: border-box;
+
+      background: rgba(0,0,0,0.32);
+
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      pointer-events: auto;
+
+    }
+    .game-over-content {
+       background: rgba(8, 8, 8, 0.1);
+      padding: 28px;
+      border-radius: 14px;
+      border: 3px solid #444;
+      display: inline-block;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+      min-width: 300px;
+      text-align: center;
+      transform: translateY(-8px);  
+    }
+
+    .game-over-title {
+      font-size: 32px;
+      color: #ff4444;
+      margin-bottom: 20px;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    }
+
+    .highScore1 {
+      margin: 15px 0;
+      font-size: 14px;
+      color: #ffffff;
+    }
+
+    .highScore1 {
+      color: #ffdd44;
+    }
+
+    .new-high-score {
+      color: #44ff44;
+      animation: pulse 1s infinite;
+      font-size: 16px;
+      margin: 20px 0;
+    }
+    
+
+    #gameOver button {
+        background-color: #4caf50;
+        border: 3px solid #2e7031;
+        color: white;
+        padding: 15px 32px;
+        font-size: 16px;
+        margin-top: 20px;
+        cursor: pointer;
+        border-radius: 8px;
+        font-family: "Press Start 2P", cursive;
+      }
+  
